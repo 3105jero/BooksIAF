@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibroBot IA - Chat</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <main class="main-app">
+        <header>
+            <div class="app-title">
+                <i class="ph-fill ph-books" style="font-size: 1.8rem; color: #6366f1;"></i>
+                <h1>LibroBot IA</h1>
+            </div>
+            <div style="display:flex; gap: 0.75rem; align-items: center;">
+                <a href="/admin/libros" class="catalog-link">
+                    <i class="ph ph-stack"></i> Ver Catálogo
+                </a>
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    Servidor Activo
+                </div>
+            </div>
+        </header>
+
+        <!-- Tip inicial -->
+        <div class="chat-tip">
+            <i class="ph ph-lightbulb"></i>
+            Puedes preguntar: <strong>"¿Qué libros tienen?"</strong>, <strong>"¿Tienen El Principito?"</strong> o <strong>"Recomiéndame algo de literatura clásica"</strong>
+        </div>
+
+        <div id="chat-box" class="chat-box">
+            <div th:each="msg : ${historial}"
+                th:classappend="${msg.remitente == 'LibroBot IA'} ? 'msg msg-bot' : 'msg msg-usuario'">
+                <span class="remitente" th:text="${msg.remitente}">Usuario</span>
+                <span th:text="${msg.contenido}">Texto del mensaje</span>
+            </div>
+            <!-- Indicador de escritura -->
+            <div id="typing" class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-wrapper">
+                <input type="text" id="remitente" placeholder="Tu nombre" required>
+                <input type="text" id="mensaje" placeholder="Pregunta sobre los libros..." required autocomplete="off">
+                <button class="send-btn" onclick="enviarMensaje()">
+                    Enviar
+                    <i class="ph-bold ph-paper-plane-right"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var stompClient = null;
+
+        function conectar() {
+            var socket = new SockJS('/chat-websocket');
+            stompClient = Stomp.over(socket);
+            stompClient.debug = null;
+            stompClient.connect({}, function (frame) {
+                stompClient.subscribe('/tema/mensajes', function (respuesta) {
+                    mostrarMensaje(JSON.parse(respuesta.body));
+                });
+            });
+        }
+
+        function enviarMensaje() {
+            var remitenteInput = document.getElementById('remitente');
+            var mensajeInput = document.getElementById('mensaje');
+            var remitente = remitenteInput.value || "Anónimo";
+            var contenido = mensajeInput.value;
+            
+            if (contenido.trim() === '') return;
+
+            // Mostrar indicador de carga
+            document.getElementById('typing').style.display = 'flex';
+            var chatBox = document.getElementById('chat-box');
+            chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+
+            stompClient.send("/app/enviar", {}, JSON.stringify({
+                'remitente': remitente,
+                'contenido': contenido
+            }));
+            mensajeInput.value = '';
+        }
+
+        function mostrarMensaje(msg) {
+            // Ocultar indicador si la IA responde
+            if (msg.remitente === 'LibroBot IA') {
+                document.getElementById('typing').style.display = 'none';
+            }
+
+            var chatBox = document.getElementById('chat-box');
+            var typingIndicator = document.getElementById('typing');
+            
+            var nuevoMensaje = document.createElement('div');
+            var claseTipo = (msg.remitente === 'LibroBot IA') ? 'msg msg-bot' : 'msg msg-usuario';
+            nuevoMensaje.className = claseTipo;
+            nuevoMensaje.innerHTML = `
+                <span class='remitente'>${msg.remitente}</span>
+                <span>${msg.contenido}</span>
+            `;
+            
+            // Insertar antes del indicador de escritura para que este siempre quede al final
+            chatBox.insertBefore(nuevoMensaje, typingIndicator);
+            chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var mensajeInput = document.getElementById('mensaje');
+            if (mensajeInput) {
+                mensajeInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') enviarMensaje();
+                });
+            }
+            conectar();
+        });
+        /*]]>*/
+    </script>
+</body>
+</html>

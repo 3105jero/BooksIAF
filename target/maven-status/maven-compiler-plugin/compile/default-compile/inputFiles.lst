@@ -1,0 +1,13 @@
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/W3d4Application.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/config/WebSocketConfig.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/controller/rest/MensajeRestController.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/controller/ui/ChatUIController.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/controller/ui/LibroUIController.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/controller/ws/ChatSocketController.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/model/Libro.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/model/Mensaje.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/repository/MensajeRepository.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/service/BotIAService.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/service/LibroService.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/service/LibroServiceImpl.java
+/home/cohorte6/jero/chatlibros/librochat/src/main/java/com/riwi/w3d4/service/MensajeService.java
